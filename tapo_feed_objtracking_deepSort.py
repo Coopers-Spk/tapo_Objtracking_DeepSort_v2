@@ -1,15 +1,12 @@
-import math
 import cv2
 import numpy as np
 from ultralytics import YOLO
 from deep_sort_realtime.deepsort_tracker import DeepSort
 from collections import Counter
-#from torchreid.models import build_model
-#from torchreid.utils import load_pretrained_weights
 
 class DeepSortTracker:
     def __init__(self, model_path='yolov8n.pt', rtsp_url=None):
-        # Initialize YOLO model
+
         print(f"Loading YOLO model from {model_path}...")
         try:
             self.model = YOLO(model_path)
@@ -24,17 +21,17 @@ class DeepSortTracker:
             max_age=25,                  # Max frames before discard tracking
             n_init=5,                    # Min frames before track
             nms_max_overlap=1.0,         # 1,0 for deepSort
-            max_cosine_distance=0.4,     # Max cosine distance for embed appear macth (.2.5)
+            max_cosine_distance=0.4,     # Max cosine distance for embed appear match (.2/.5)
             nn_budget=None,              # Maximum size of appearance descriptor gallery
             embedder="mobilenet",        # Appearance Embed generator can also use osnet
-            half=True,                   # Fast if have right hardware
+            half=True,                   # Faster if have right hardware - default True
             bgr=True,                    # BGR default OpenCV
             embedder_gpu=True,           # Use GPU for embedder - if CUDA
             polygon=False,               # Use for rotating objects
         )
         print("DeepSORT tracker initialized successfully with embedder (mobilenet).")
         
-        # initilize video feed (resolution and FPS hardset with tapo - change from feed 1 to 2)
+        # Initilize video feed (resolution and FPS hardset with tapo - change from feed 1 to 2)
         self.cap = cv2.VideoCapture(rtsp_url)
         self.cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1280)
         self.cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 720)
@@ -105,7 +102,7 @@ class DeepSortTracker:
         history_keys_to_check = list(self.track_history.keys()) 
         for track_id in history_keys_to_check:
             if track_id not in active_track_ids:
-                del self.track_history[track_id]"""
+                del self.track_history[track_id]
 
     # Nightmare - drop objects that are not moving
     def still_objects(self):
@@ -118,7 +115,7 @@ class DeepSortTracker:
                 if moved > 3:
                     self.not_moved[track_id] = True
                 else:
-                    self.not_moved[track_id] = False
+                    self.not_moved[track_id] = False"""
 
     def draw_tracks(self, frame, tracks):
         """Draw tracking information on frame"""
@@ -296,18 +293,9 @@ def main():
     # Choose your YOLO model. n,s,m,
     MODEL_PATH = 'yolov8m.pt' 
 
-    RTSP_URL = "rtsp://Cv_livestream:test_account_1925@192.168.1.4:554/stream2"
-
-    """
-    # Stream 1 - needs a GPU or high end CPU (goo for demo), Stream 2 for everything else
-    feed = input("Select feed: '1' for high res and cool, or select '2' for less cool, but a chance of it running: ")
-    if feed == 1:
-        print("You have selected: Live hard, die young")
-        self.cap = "rtsp://Cv_livestream:test_account_1925@192.168.1.4:554/stream1"
-    else:
-        print("You have selected: the sensible option")
-        RTSP_URL = "rtsp://Cv_livestream:test_account_1925@192.168.1.4:554/stream2"
-    """
+    # Change to here to RTSP stream 1 for high res, but will run very slow
+    RTSP_URL = "------Insert RTSP here-------"
+    
     print("\n--- Starting DeepSORT Tracker Application ---")
     try:
         # Create tracker instance
@@ -326,4 +314,5 @@ def main():
         print("\n--- DeepSORT Tracker Application Ended ---")
 
 if __name__ == "__main__":
+
     main()
